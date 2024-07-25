@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Create MCQ Exercise{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="page-title">Create MCQ Exercise</h2>
+    <form method="post" id="mcq-form">
+        <div class="form-group">
+            <label for="question">Question:</label>
+            <textarea id="question" name="question" class="form-control" rows="3">{{ question }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="options">Options:</label>
+            <ul class="list-unstyled">
+                {% for option in options %}
+                <li>
+                    {{ loop.index | plus_64 }}. {{ option }}
+                    <input type="hidden" name="options" value="{{ option }}">
+                    {% if option != answer %}
+                    <input type="checkbox" name="distractors" value="{{ option }}"> Replace
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="form-group">
+            <label for="answer">Answer:</label>
+            <input type="text" id="answer" name="answer" class="form-control" value="{{ answer }}" readonly>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Exercise</button>
+        <button type="button" class="btn btn-secondary" onclick="changeDistractors()">Change Distractors</button>
+    </form>
+</div>
+
+<script>
+function changeDistractors() {
+    const selectedDistractors = [];
+    document.querySelectorAll('input[name="distractors"]:checked').forEach(checkbox => {
+        selectedDistractors.push(checkbox.value);
+    });
+
+    const currentOptions = [];
+    document.querySelectorAll('input[name="options"]').forEach(input => {
+        currentOptions.push(input.value);
+    });
+
+    fetch('{{ url_for('create_mcq', context_id=context_id) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ action: 'change_distractors', selected_distractors: selectedDistractors, current_options: currentOptions })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const optionsList = document.querySelector('ul.list-unstyled');
+        optionsList.innerHTML = '';
+        data.new_options.forEach((option, index) => {
+            const listItem = document.createElement('li');
+            const letter = String.fromCharCode(65 + index);
+            listItem.innerHTML = `${letter}. ${option}
+                                  <input type="hidden" name="options" value="${option}">
+                                  ${option !== '{{ answer }}' ? `<input type="checkbox" name="distractors" value="${option}"> Replace` : ''}`;
+            optionsList.appendChild(listItem);
+        });
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}
+

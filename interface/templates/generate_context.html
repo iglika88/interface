@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Contexts{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="page-title">Generate Contexts for Item: {{ item.item }}</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Item:</strong> {{ item.item }}</p>
+            <p><strong>POS:</strong> {{ item.pos }}</p>
+            <p><strong>Translation:</strong> {{ item.translation }}</p>
+            <p><strong>Course Code:</strong> {{ item.course_code }}</p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>CEFR Level:</strong> {{ item.cefr_level }}</p>
+            <p><strong>Domain:</strong> {{ item.domain }}</p>
+            <p><strong>Lesson Title:</strong> {{ item.lesson_title }}</p>
+            <p><strong>Reading or Listening:</strong> {{ item.reading_or_listening }}</p>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <form method="post" onsubmit="showWaitMessage()">
+            <button type="submit" name="generate_contexts" class="btn btn-success">Generate New Contexts</button>
+        </form>
+        <p id="waitMessage" style="display:none; margin-top: 10px;">Please wait... Generating contexts might take some time.</p>
+    </div>
+
+    {% if generated_contexts %}
+    <form method="post">
+        <div class="mt-5">
+            <h3>Generated Contexts</h3>
+            <ul class="list-unstyled">
+                {% for context in generated_contexts %}
+                <li class="d-flex align-items-center mb-2">
+                    <input type="checkbox" name="selected_contexts" value="{{ loop.index0 + 1 }}" class="mr-2">
+                    <textarea name="context_texts" class="form-control flex-grow-1" rows="3" style="width: 100%;">{{ context }}</textarea>
+                    <input type="hidden" name="target_words" value="{{ find_target_word(context, item.item) }}">
+                </li>
+                {% endfor %}
+            </ul>
+            <button type="submit" name="save_contexts" class="btn btn-primary">Save Selected Contexts</button>
+        </div>
+    </form>
+    {% endif %}
+
+    {% if current_contexts %}
+    <div class="mt-5">
+        <h3>Current Contexts ({{ pagination.total }})</h3>
+        <ol start="{{ (page - 1) * per_page + 1 }}">
+            {% for context in current_contexts %}
+            <li>{{ context|safe }}</li>
+            {% endfor %}
+        </ol>
+        <div class="text-center mt-3">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('generate_context', item_id=item.id, page=pagination.prev_num) }}">Prev</a>
+            {% endif %}
+            {% for p in range(1, pagination.pages + 1) %}
+            <a href="{{ url_for('generate_context', item_id=item.id, page=p) }}">{{ p }}</a>
+            {% endfor %}
+            {% if pagination.has_next %}
+            <a href="{{ url_for('generate_context', item_id=item.id, page=pagination.next_num) }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <p>There are currently no saved contexts for this item.</p>
+    {% endif %}
+</div>
+
+<script>
+    function showWaitMessage() {
+        document.getElementById('waitMessage').style.display = 'block';
+    }
+</script>
+{% endblock %}
+

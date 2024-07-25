@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Create Gapfill Exercise{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="page-title">Create Gapfill Exercise</h2>
+    <form method="post">
+        <div class="form-group">
+            <label for="question">Question:</label>
+            <textarea id="question" name="question" class="form-control" rows="3">{{ question }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="answer">Answer:</label>
+            <input type="text" id="answer" name="answer" class="form-control" value="{{ answer }}" readonly>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Exercise</button>
+    </form>
+</div>
+{% endblock %}
+
