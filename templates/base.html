@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+    body, h1, h2, h3, h4, h5, h6, p, label, input, select, button {
+        font-family: 'Courier New', Courier, monospace; /* Set default font */
+    }
+    .no-bullets {
+        list-style-type: none; /* Removes bullet points */
+        padding-left: 0; /* Removes default padding */
+    }
+    .header-container {
+        background-color: #f8f9fa; /* Light grey background for the header */
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-subtitle {
+    margin: 0;
+    padding: 0;
+    font-size: 1rem; /* Slightly bigger than the current size */
+    font-family: 'Courier New', Courier, monospace; /* Computer-science-friendly font */
+    text-align: left; /* Align text to the left */
+}
+
+    .header-title {
+        margin: 0;
+        padding: 0;
+        font-family: 'Courier New', Courier, monospace; /* Computer-science-friendly font */
+        font-size: 2rem; /* Increased font size */
+        text-align: left; /* Center text */
+    }
+
+.page-title {
+    font-size: 2rem; /* Larger font size for titles */
+    font-family: 'Courier New', Courier, monospace; /* Same font as the rest */
+    text-align: left; /* Align text to the left */
+    margin: 0;
+    padding: 0;
+}
+
+    .navbar-nav {
+        display: flex;
+        align-items: center; /* Align items vertically center */
+    }
+    .navbar-brand, .nav-link {
+        color: blue;
+        text-decoration: underline;
+        font-size: 1.25rem; /* Ensure same font size for both links */
+        font-family: 'Courier New', Courier, monospace; /* Computer-science-friendly font */
+        margin-right: 20px; /* Space between links */
+    }
+    .username {
+        color: #007bff; /* Change the color of the username */
+        margin-right: 10px;
+    }
+    .vertical-bar {
+        margin: 0 10px;
+        color: #6c757d; /* Gray color for vertical bars */
+    }
+    .footer-logos img {
+        margin: 0 15px;
+    }
+    .footer-logos .cental-logo {
+        max-height: 150px; /* 1.5 times bigger */
+    }
+    .footer-logos .ilv-logo {
+        max-height: 125px; /* 1.25 times bigger */
+    }
+    .footer-logos .ucl-logo {
+        max-height: 75px; /* 0.75 times current size */
+    }
+    .btn-outline-info {
+        white-space: nowrap; /* Ensure "My Exercises" stays on one line */
+    }
+    html, body {
+        height: 100%;
+    }
+    .d-flex {
+        display: flex;
+    }
+    .flex-column {
+        flex-direction: column;
+    }
+    .flex-grow-1 {
+        flex-grow: 1;
+    }
+    .header-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center align text */
+    }
+    .header-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-horizontal .form-group {
+    display: flex;
+    align-items: center;
+}
+
+.form-horizontal .col-form-label {
+    text-align: right;
+}
+
+.form-horizontal .col-sm-10 {
+    flex: 1;
+}
+
+.input-small {
+    max-width: 300px;
+}
+
+.personal-page-title {
+    font-family: 'Courier New', Courier, monospace; /* Same as the About page */
+    font-size: 1.5rem; /* Adjust the size as needed to match the About page */
+    text-align: left; /* Align text to the left */
+    margin: 0;
+    padding: 0;
+}
+
+.enlarged-image {
+    max-width: 600px; /* Explicit width to make the image twice as large */
+    height: auto; /* Maintain aspect ratio */
+}
+.text-nowrap {
+    white-space: nowrap; /* Ensure text stays on one line */
+}
+    </style>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <header class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container header-container">
+            <div class="navbar-nav">
+                <a class="navbar-brand" href="/" style="color: blue; text-decoration: underline;">Home</a>
+                <a class="nav-link" href="/about" style="color: blue; text-decoration: underline;">About</a>
+            </div>
+            <div class="header-content">
+                <h1 class="header-title">Interface of project CATS<br>(CENTAL, UCLouvain)</h1>
+                <p class="header-subtitle">Manage vocabulary lists, generate contexts of use and create<br>exercises to enhance the process of teaching specialised EFL vocabulary.</p>
+            </div>
+            <div class="header-right">
+    {% if session.username %}
+    <div class="ml-auto text-right">
+        <span class="username"><a href="{{ url_for('personal_space', username=session.username) }}" style="color: #007bff;">{{ session.username }}</a></span>
+        <span class="vertical-bar">|</span>
+        <a href="/logout" class="btn btn-outline-primary ml-2">Logout</a>
+    </div>
+    {% else %}
+    <div class="ml-auto text-right">
+        <span>You are not logged in</span>
+        <a href="/login" class="btn btn-outline-success ml-2">Login</a>
+        <a href="/register" class="btn btn-outline-secondary ml-2">Register</a>
+    </div>
+    {% endif %}
+</div>
+        </div>
+    </header>
+
+    <div class="container flex-grow-1">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+       {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer bg-light py-3 mt-4">
+        <div class="container text-center">
+            <div class="footer-logos d-flex justify-content-center align-items-center">
+                <img src="{{ url_for('static', filename='cental_logo.png') }}" alt="CENTAL Logo" class="cental-logo">
+                <img src="{{ url_for('static', filename='ilv_logo.png') }}" alt="ILV Logo" class="ilv-logo">
+                <img src="{{ url_for('static', filename='ucl_logo.png') }}" alt="UCL Logo" class="ucl-logo">
+            </div>
+            <p class="text-muted">© 2024 CENTAL, UCLouvain</p>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#item').select2({
+            placeholder: 'Select an item',
+            allowClear: true
+        });
+    });
+    </script>
+</body>
+</html>
+

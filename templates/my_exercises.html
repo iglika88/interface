@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}My Exercises{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="page-title">My Exercises</h2>
+    <form method="post" id="exercises-form">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Select</th>
+                    <th scope="col">Exercise</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exercise in exercises %}
+                <tr>
+                    <td><input type="checkbox" name="selected_exercises" value="{{ exercise.id }}"></td>
+                    <td>
+                        <pre style="font-family:inherit">{{ exercise.question|safe }}</pre>
+                        <br><strong>Answer:</strong> {{ exercise.answer }}
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-block" style="width: 180px;" onclick="editExercise('{{ exercise.id }}', 'question', '{{ exercise.question|escapejs }}')">Edit Question</button>
+                        <button type="button" class="btn btn-secondary btn-block" style="width: 180px;" onclick="editExercise('{{ exercise.id }}', 'answer', '{{ exercise.answer|escapejs }}')">Edit Answer</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" formaction="{{ url_for('delete_exercises') }}" class="btn btn-danger">Delete Selected</button>
+        <button type="submit" formaction="{{ url_for('export_to_word') }}" class="btn btn-primary">Export to Word</button>
+        <button type="submit" formaction="{{ url_for('export_to_word') }}" class="btn btn-secondary" onclick="includeAnswers()">Export to Word (with answers)</button>
+    </form>
+</div>
+
+<script>
+function editExercise(exerciseId, field, currentValue) {
+    let newValue = prompt(`Edit ${field}:`, currentValue);
+    if (newValue !== null && newValue !== "") {
+        fetch('{{ url_for('edit_exercise') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                'exercise_id': exerciseId,
+                'field': field,
+                'new_value': newValue
+            })
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Failed to update the exercise.');
+            }
+        });
+    }
+}
+
+function includeAnswers() {
+    const form = document.getElementById('exercises-form');
+    const includeAnswersInput = document.createElement('input');
+    includeAnswersInput.type = 'hidden';
+    includeAnswersInput.name = 'include_answers';
+    includeAnswersInput.value = 'true';
+    form.appendChild(includeAnswersInput);
+}
+</script>
+{% endblock %}
+

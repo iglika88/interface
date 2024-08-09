@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Create Exercises{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mb-4">
+        <h2 class="page-title">Select vocabulary items to view their contexts of use and generate exercises.</h2>
+        <br>
+        <form id="filterForm" method="post">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="course_code">Course Code:</label>
+                    <div id="course_code">
+                        {% for code in course_codes %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="course_code" value="{{ code }}" id="course_code_{{ code }}" {% if code in selected_params.course_code %}checked{% endif %} onchange="updateItems()">
+                            <label class="form-check-label" for="course_code_{{ code }}">{{ code }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="domain">Domain:</label>
+                    <div id="domain">
+                        {% for domain in domains %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="domain" value="{{ domain }}" id="domain_{{ domain }}" {% if domain in selected_params.domain %}checked{% endif %} onchange="updateItems()">
+                            <label class="form-check-label" for="domain_{{ domain }}">{{ domain }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="cefr_level">Level:</label>
+                    <div id="cefr_level">
+                        {% for level in levels %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="cefr_level" value="{{ level }}" id="cefr_level_{{ level }}" {% if level in selected_params.cefr_level %}checked{% endif %} onchange="updateItems()">
+                            <label class="form-check-label" for="cefr_level_{{ level }}">{{ level }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="number_of_contexts">Current # Contexts:</label>
+                    <div id="number_of_contexts">
+                        {% for context_range in context_ranges %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="number_of_contexts" value="{{ context_range }}" id="number_of_contexts_{{ context_range }}" {% if context_range in selected_params.number_of_contexts %}checked{% endif %} onchange="updateItems()">
+                            <label class="form-check-label" for="number_of_contexts_{{ context_range }}">{{ context_range }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label for="item">Item:</label>
+                    <select class="form-control form-control-sm" id="item" name="item">
+                        <option value="" disabled {% if not selected_params.item %}selected{% endif %}>Select an item</option>
+                        {% for item in items %}
+                        <option value="{{ item }}" {% if item == selected_params.item %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+    {% if results %}
+    <h3 class="mt-5">Search Results</h3>
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>POS</th>
+                <th>Course Code</th>
+                <th>Level</th>
+                <th>Domain</th>
+                <th>Current # Contexts</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>
+                    {% if result.number_of_contexts > 0 %}
+                    <a href="{{ url_for('generate_exercises', item_id=result.id) }}">{{ result.item }}</a>
+                    {% else %}
+                    {{ result.item }} <br><span style="color: red; font-size: small;">No contexts available!</span>
+                    {% endif %}
+                </td>
+                <td>{{ result.pos }}</td>
+                <td>{{ result.course_code }}</td>
+                <td>{{ result.cefr_level }}</td>
+                <td>{{ result.domain }}</td>
+                <td>{{ result.number_of_contexts }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+<script>
+function getCSRFToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
+function updateItems() {
+    const courseCodes = Array.from(document.querySelectorAll('input[name="course_code"]:checked')).map(el => el.value);
+    const domains = Array.from(document.querySelectorAll('input[name="domain"]:checked')).map(el => el.value);
+    const cefrLevels = Array.from(document.querySelectorAll('input[name="cefr_level"]:checked')).map(el => el.value);
+    const contextRanges = Array.from(document.querySelectorAll('input[name="number_of_contexts"]:checked')).map(el => el.value);
+
+    fetch('{{ url_for('filter_items') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+            course_code: courseCodes,
+            domain: domains,
+            cefr_level: cefrLevels,
+            number_of_contexts: contextRanges,
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        const itemSelect = document.getElementById('item');
+        itemSelect.innerHTML = '<option value="" disabled selected>Select an item</option>';
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            itemSelect.appendChild(option);
+        });
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}
+
