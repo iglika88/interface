@@ -1,1 +1,0 @@
-ERROR:flask_migrate:Error: Directory migrations already exists and is not empty
