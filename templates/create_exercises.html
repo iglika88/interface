@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Create Exercises{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mb-4">
+        <h2 class="page-title">Select vocabulary items to view their contexts of use and generate exercises.</h2>
+        <br>
+
+        <form id="filterForm" method="post">
+            <div class="form-row">
+                <!-- Filters for Course Code, Domain, Level, and Contexts -->
+                <div class="form-group col-md-3">
+                    <label for="course_code">Course Code:</label>
+                    <div id="course_code">
+                        {% for code in course_codes %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="course_code" value="{{ code }}" id="course_code_{{ code }}" {% if code in selected_params.course_code %}checked{% endif %}>
+                            <label class="form-check-label" for="course_code_{{ code }}">{{ code }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="domain">Domain:</label>
+                    <div id="domain">
+                        {% for domain in domains %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="domain" value="{{ domain }}" id="domain_{{ domain }}" {% if domain in selected_params.domain %}checked{% endif %}>
+                            <label class="form-check-label" for="domain_{{ domain }}">{{ domain }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="cefr_level">Level:</label>
+                    <div id="cefr_level">
+                        {% for level in levels %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="cefr_level" value="{{ level }}" id="cefr_level_{{ level }}" {% if level in selected_params.cefr_level %}checked{% endif %}>
+                            <label class="form-check-label" for="cefr_level_{{ level }}">{{ level }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="number_of_contexts">Current # Contexts:</label>
+                    <div id="number_of_contexts">
+                        {% for context_range in context_ranges %}
+                       <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="number_of_contexts" value="{{ context_range }}" id="number_of_contexts_{{ context_range }}" {% if context_range in selected_params.number_of_contexts %}checked{% endif %}>
+                            <label class="form-check-label" for="number_of_contexts_{{ context_range }}">{{ context_range }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Filter for Selected status -->
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="selected">Selected:</label>
+                    <div id="selected">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selected" value="yes" id="selected_yes" {% if 'yes' in selected_params.selected %}checked{% endif %}>
+                            <label class="form-check-label" for="selected_yes">Yes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selected" value="no" id="selected_no" {% if 'no' in selected_params.selected %}checked{% endif %}>
+                            <label class="form-check-label" for="selected_no">No</label>
+                        </div>
+                    </div>
+                </div>
+		<div class="form-group col-md-9">
+    		    <label for="item">Item:</label>
+    		    <select class="form-control form-control-sm" id="item" name="item">
+        		<option value="" {% if not selected_params.item %}selected{% endif %}>Select an item</option>
+        		{% for item in items %}
+        		<option value="{{ item }}" {% if item == selected_params.item %}selected{% endif %}>{{ item }}</option>
+        		{% endfor %}
+    		    </select>
+		</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+
+    {% if results %}
+    <h3 class="mt-5">Search Results</h3>
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>POS</th>
+                <th>Course Code</th>
+                <th>Level</th>
+                <th>Domain</th>
+                <th>Selected</th>
+                <th>Current # Contexts</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>
+                    {% if result.number_of_contexts > 0 %}
+                    <a href="{{ url_for('generate_exercises', item_id=result.id, 
+                        course_code=selected_params.get('course_code', []), 
+                        domain=selected_params.get('domain', []), 
+                        cefr_level=selected_params.get('cefr_level', []), 
+                        number_of_contexts=selected_params.get('number_of_contexts', []), 
+                        selected=selected_params.get('selected', [])) }}">
+                        {{ result.item }}
+                    </a>
+                    {% else %}
+                    {{ result.item }} <br><span style="color: red; font-size: small;">No contexts available!</span>
+                    {% endif %}
+                </td>
+                <td>{{ result.pos }}</td>
+                <td>{{ result.course_code }}</td>
+                <td>{{ result.cefr_level }}</td>
+                <td>{{ result.domain }}</td>
+                <td>{{ result.selected }}</td>
+                <td>{{ result.number_of_contexts }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}
+
