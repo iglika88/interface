@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Vocabulary Entry{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <a href="{{ url_for('manage_current_entries', **selected_params) }}" class="text-primary">
+    <i class="fas fa-arrow-left"></i>← Back to Search Results
+
+    </a>
+
+
+    <h3 class="mt-3">Edit Item: {{ item.item }}</h3>
+    <form method="post">
+        <div class="form-group">
+            <label for="item">Item:</label>
+            <input type="text" class="form-control" id="item" name="item" value="{{ item.item }}" required>
+        </div>
+        <div class="form-group">
+            <label for="pos">POS:</label>
+            <input type="text" class="form-control" id="pos" name="pos" value="{{ item.pos }}">
+        </div>
+        <div class="form-group">
+            <label for="translation">Translation:</label>
+            <input type="text" class="form-control" id="translation" name="translation" value="{{ item.translation }}">
+        </div>
+        <div class="form-group">
+            <label for="course_code">Course Code:</label>
+            <input type="text" class="form-control" id="course_code" name="course_code" value="{{ item.course_code }}" required>
+        </div>
+        <div class="form-group">
+            <label for="cefr_level">CEFR Level:</label>
+            <input type="text" class="form-control" id="cefr_level" name="cefr_level" value="{{ item.cefr_level }}" required>
+        </div>
+        <div class="form-group">
+            <label for="domain">Domain:</label>
+            <input type="text" class="form-control" id="domain" name="domain" value="{{ item.domain }}" required>
+        </div>
+        <div class="form-group">
+            <label for="lesson_title">Lesson Title:</label>
+            <input type="text" class="form-control" id="lesson_title" name="lesson_title" value="{{ item.lesson_title }}">
+        </div>
+        <div class="form-group">
+            <label for="reading_or_listening">Reading or Listening:</label>
+            <input type="text" class="form-control" id="reading_or_listening" name="reading_or_listening" value="{{ item.reading_or_listening }}">
+        </div>
+        <button type="submit" class="btn btn-success">Save Changes</button>
+    </form>
+</div>
+{% endblock %}
+

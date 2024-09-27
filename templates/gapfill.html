@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Gap-fill Exercise</h1>
+<p>{{ sentence }}</p> <!-- Consistently display content like in mcq.html -->
+<p>Correct Answer: {{ answer }}</p> <!-- Optionally, label it 'Correct Answer' for clarity -->
+
+<!-- Save Exercise Form -->
+<form action="{{ url_for('save_exercise', exercise_type='gapfill') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="word" value="{{ answer }}"> <!-- This assumes 'answer' is the word to save -->
+    <input type="hidden" name="exercise_type" value="gapfill">
+    <input type="hidden" name="question" value="{{ sentence }}">
+    <input type="hidden" name="answer" value="{{ answer }}">
+    <button type="submit" class="btn btn-primary">Save Exercise</button>
+</form>
+{% endblock %}
+

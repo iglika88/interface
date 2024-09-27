@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Generate Vocabulary Questions from Scratch
+{% endblock %}
+
+{% block content %}
+    <h1>Generate Vocabulary Questions from Scratch</h1>
+    <form action="{{ url_for('generate_scratch') }}" method="post" class="search-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-row">
+            <label for="vocabulary_item">Vocabulary Item:</label>
+            <input type="text" id="vocabulary_item" name="vocabulary_item" required>
+        </div>
+        <div class="form-row">
+            <label for="pos">POS:</label>
+            <select id="pos" name="pos" required>
+                <option value="noun">noun</option>
+                <option value="verb">verb</option>
+                <option value="adjective">adjective</option>
+                <option value="adverb">adverb</option>
+                <option value="preposition">preposition</option>
+                <option value="conjunction">conjunction</option>
+                <option value="word">word</option>
+                <option value="expression">expression</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="cefr_level">CEFR Level:</label>
+            <select id="cefr_level" name="cefr_level" required>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <button type="submit" class="btn btn-primary">Generate Sentences</button>
+        </div>
+    </form>
+
+    {% if sentences %}
+        <h2>Here are 5 sentences for vocabulary item <span style="color: blue;">{{ vocabulary_item }}</span>, POS <span style="color: blue;">{{ pos }}</span>, level <span style="color: blue;">{{ cefr_level }}</span></h2>
+        <form action="{{ url_for('select_scratch_exercise_type') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="base_form" value="{{ vocabulary_item }}">
+            <input type="hidden" name="pos" value="{{ pos }}">
+            <input type="hidden" name="cefr_level" value="{{ cefr_level }}">
+            <input type="hidden" name="is_scratch" value="true">
+            <ul style="list-style-type: none; padding: 0;">
+                {% for sentence in sentences %}
+                    <li>
+                        <input type="radio" id="sentence_{{ loop.index }}" name="sentence" value="{{ sentence }}" required>
+                        <label for="sentence_{{ loop.index }}">{{ sentence }}</label>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="form-row">
+                <button type="submit" name="action" value="generate_gapfill" class="btn btn-info">Generate Gap-fill Exercise</button>
+                <button type="submit" name="action" value="generate_mcq" class="btn btn-info">Generate MCQ Exercise</button>
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}
+

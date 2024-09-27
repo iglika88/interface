@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>My Exercises</h2>
+
+<form action="{{ url_for('edit_or_delete_exercises') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <ul class="exercise-list no-bullets">
+        {% for exercise in exercises %}
+        <li class="mb-3 p-3 border rounded">
+            <div class="row">
+                <div class="col-md-8">
+                    <input type="checkbox" name="exercise_ids[]" value="{{ exercise.id }}">
+                    <strong>Word:</strong> {{ exercise.word }}<br>
+                    <strong>Type:</strong> {{ exercise.exercise_type }}<br>
+                    <strong>Question:</strong> {{ exercise.question }}<br>
+                    <strong>Answer:</strong> {{ exercise.answer }}
+                </div>
+                <div class="col-md-4 text-md-right mt-2 mt-md-0">
+                    <button type="button" class="btn btn-outline-primary btn-sm mb-2">Edit Question</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm">Edit Answer</button>
+                </div>
+            </div>
+        </li>
+        {% else %}
+        <li>No exercises found.</li>
+        {% endfor %}
+    </ul>
+    <button type="submit" name="action" value="delete" class="btn btn-danger mt-3">Delete Selected</button>
+    <button type="submit" name="action" value="export" class="btn btn-primary mt-3">Export to Word</button>
+    <button type="submit" name="action" value="export_with_answers" class="btn btn-primary mt-3">Export to Word (with answers)</button>
+</form>
+
+{% endblock %}
+
