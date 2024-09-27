@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{ username }}'s Personal Page{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="page-title">{{ username }}'s Personal Page</h2>
+    {% if redirect_back %}
+        <!-- Back Link styled as a blue underlined link with a left-pointing arrow -->
+        <div class="text-left">
+            <a href="{{ redirect_back }}" style="color: blue; text-decoration: underline; font-size: 1.2rem;">
+                ← Back to Contexts
+            </a>
+        </div>
+    {% endif %}
+    <ul>
+        <li><a href="{{ url_for('my_exercises', username=username) }}">My Exercises</a></li>
+    </ul>
+</div>
+{% endblock %}
+

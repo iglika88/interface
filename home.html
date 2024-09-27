@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mb-4">
+        <p class="header-subtitle mb-1 text-left">Click here to upload a new vocabulary list based on an ESL course or to edit current vocabulary lists:</p>
+	<a href="/manage_vocabulary_lists" class="btn btn-primary">Manage Vocabulary Lists</a>
+    </div>
+    <div class="mb-4">
+        <p class="header-subtitle mb-1 text-left">Click here to view, edit and add examples of use of vocabulary items:</p>
+        <a href="/add_context_examples" class="btn btn-secondary">Manage Context Examples</a>
+    </div>
+    <div class="mb-4">
+        <p class="header-subtitle mb-1 text-left">Click here to create gapfill or multiple choice questions based on contexts of your choice:</p>
+        <a href="/create_exercises" class="btn btn-success">Create Vocabulary Exercises</a>
+    </div>
+</div>
+{% endblock %}
+

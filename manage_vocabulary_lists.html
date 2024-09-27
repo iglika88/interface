@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Vocabulary Lists{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mb-4">
+        <p class="header-subtitle mb-1 text-left">Click here to upload a new vocabulary list:</p>
+        <a href="/add_vocabulary_list" class="btn btn-primary">Add a Vocabulary List</a>
+    </div>
+    <div class="mb-4">
+        <p class="header-subtitle mb-1 text-left">Click here to edit current vocabulary entries:</p>
+        <a href="/manage_current_entries" class="btn btn-secondary">Manage Current Entries</a>
+    </div>
+    <div class="mb-4">
+        <p class="header-subtitle mb-1 text-left">
+            Click here to reset the list of available distractors 
+            (to aid yourself and your colleagues, please use this option if you have completed a series of exercises and no longer need to keep track of the words 
+            that have already been used as target words or as distractors):
+        </p>
+        <form method="post" action="{{ url_for('manage_vocabulary_lists') }}">
+            <button type="submit" class="btn btn-danger">Reset Distractors</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
